@@ -79,7 +79,7 @@ params <- list(
     r=0.0651,
     P=15,
     L=77.5e-3,
-    Me_in=0.08,
+    Me_in=0.008,
     Te_in=23.7,
     Wavg_0=0.00,
     T_0=23.7,
@@ -93,6 +93,28 @@ solveDesiccant <- function(times, N, params) {
     state <- c(Wavg=rep(params$Wavg_0, N), Ts=rep(params$T_0, N))
 
     res <- ode.1D(state, times, desiccant, params, nspec=2, method=c("euler"))
-    res.df <- as.data.frame(res[,c(1,1+N*1:5)])
-    return(melt(res.df, "time"))
+    attr(res, "params") <- params
+    res
+}
+
+plotDesiccant <- function(res) {
+    data <- melt(as.data.frame(res), "time")
+    data <- within(data, {
+        variable <- as.character(variable)
+        matches <- regmatches(variable, regexec("([^0-9]*)(.*)", variable))
+        variable <- factor(sapply(matches, function(e) e[2]))
+        z <- as.integer(sapply(matches, function(e) e[3]))
+        rm(matches)
+    })
+
+    N <- attr(res, "dimens")
+    ggplot(subset(data, z == N), aes(time, value)) + geom_line() + facet_wrap(~variable, scales="free")
+}
+
+adsorbedWater <- function(res) {
+    params <- attr(res, "params")
+    N <- attr(res, "dimens")
+    boxWeight <- params$rhob*params$L*params$r**2*pi/N
+    adsorbedMass <- res[,1+1:N]*boxWeight
+    adsorbedMass
 }
