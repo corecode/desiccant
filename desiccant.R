@@ -37,7 +37,7 @@ desiccant <- function(time, state, parms, N) {
 
         Ga <- rhoe * v
         mdotG <- A * Ga
-        KGeff <- 0.704*Ga*Re**-0.51
+        KGeff <- 14.53*Ga*Re**-0.41
         Ms <- calcMs(Wavg, Ts, parms)
         names(Ms) <- NULL
         cpl <- 1884                     # J/kg/K
@@ -83,7 +83,7 @@ params <- list(
     Te_in=23.7,
     Wavg_0=0.00,
     T_0=23.7,
-    Hads=function(W) ifelse(W<=0.15, -300*W+2095, 2050),
+    Hads=function(W) ifelse(W<=0.15, -300*W+2095, 2050)*1000,
     RH=function(W) ifelse(W<=0.07, 1.235*W + 267.99*W**2 - 3170.7*W**3 + 10087.16*W**4, 0.3316 + 3.18*W)
 )
 
